@@ -6,13 +6,16 @@
 
 from hashlib import sha256
 from urlparse import parse_qsl
-try: import simplejson as json
-except ImportError: import json
+try: 
+    import simplejson as json
+except ImportError: 
+    import json
 from django.conf import settings
 from django.http import HttpResponse
 from .exceptions import OAuth2Exception
 from .models import AccessToken, AccessRange, TimestampGenerator
 from .consts import REALM, AUTHENTICATION_METHOD, MAC, BEARER
+
 
 class AuthenticationException(OAuth2Exception):
     """Authentication exception base class."""
@@ -38,9 +41,11 @@ class InsufficientScope(AuthenticationException):
     access token."""
     error = 'insufficient_scope'
 
+
 class UnvalidatedRequest(OAuth2Exception):
     """The method requested requires a validated request to continue."""
     pass
+
 
 class Authenticator(object):
     """Django HttpRequest authenticator. Checks a request for valid
@@ -147,7 +152,7 @@ class Authenticator(object):
         """Validate MAC authentication. Not implemented."""
         if self.authentication_method & MAC == 0:
             raise InvalidToken("MAC authentication is not supported.")
-        mac_header = parse_qsl(mac_header.replace(",","&").replace('"', ''))
+        mac_header = parse_qsl(mac_header.replace(",", "&").replace('"', ''))
         mac_header = dict([(x[0].strip(), x[1].strip()) for x in mac_header])
         for parameter in ["id", "nonce", "mac"]:
             if "parameter" not in mac_header:
@@ -167,11 +172,11 @@ class Authenticator(object):
             raise InvalidRequest("Request does not contain a port.")
         nonce_timestamp, nonce_string = mac_header["nonce"].split(":")
         mac = sha256("\n".join([
-            mac_header["nonce"], # The nonce value generated for the request
-            self.request.method.upper(), # The HTTP request method
-            "XXX", # The HTTP request-URI
-            self.request_hostname, # The hostname included in the HTTP request
-            self.request_port, # The port as included in the HTTP request
+            mac_header["nonce"],  # The nonce value generated for the request
+            self.request.method.upper(),  # The HTTP request method
+            "XXX",  # The HTTP request-URI
+            self.request_hostname,  # The hostname included in the HTTP request
+            self.request_port,  # The port as included in the HTTP request
             bodyhash,
             ext])).hexdigest()
         raise NotImplementedError()
@@ -187,7 +192,6 @@ class Authenticator(object):
         # the determination of staleness is left up to the server to
         # define).
         # 3.  Verify the scope and validity of the MAC credentials.
-
 
     def _get_user(self):
         """The user associated with the valid access token.
@@ -310,12 +314,12 @@ class JSONAuthenticator(Authenticator):
         """Returns a HttpResponse object of JSON error data."""
         if self.error is not None:
             content = json.dumps({
-                "error":getattr(self.error, "error", "invalid_request"),
-                "error_description":self.error.message})
+                "error": getattr(self.error, "error", "invalid_request"),
+                "error_description": self.error.message})
         else:
             content = ({
-                "error":"invalid_request",
-                "error_description":"Invalid Request."})
+                "error": "invalid_request",
+                "error_description": "Invalid Request."})
         if self.callback is not None:
             content = "%s(%s);" % (self.callback, content)
         response = Authenticator.error_response(

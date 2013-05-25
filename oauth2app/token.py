@@ -8,8 +8,10 @@ from base64 import b64encode
 from django.http import HttpResponse
 from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
-try: import simplejson as json
-except ImportError: import json
+try: 
+    import simplejson as json
+except ImportError: 
+    import json
 from .exceptions import OAuth2Exception
 from .consts import ACCESS_TOKEN_EXPIRATION, REFRESH_TOKEN_LENGTH, ACCESS_TOKEN_LENGTH
 from .consts import AUTHENTICATION_METHOD, MAC, BEARER, MAC_KEY_LENGTH

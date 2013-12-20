@@ -84,6 +84,8 @@ class Client(models.Model):
         default=KeyGenerator(CLIENT_SECRET_LENGTH))
     redirect_uri = models.URLField(null=True)
 
+    def __unicode__(self):
+        return self.name
 
 class AccessRange(models.Model):
     """Stores access range data, also known as scope.
